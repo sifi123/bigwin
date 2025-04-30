@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heads or Tails Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            background-color: #fff;
+            min-height: 100vh;
+            position: relative;
+            padding-bottom: 70px;
+        }
+        
+        .auth-container {
+            padding: 30px 20px;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            background-color: #fff;
+            position: relative;
+        }
+        
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 30px;
+        }
+        
+        .auth-tab {
+            flex: 1;
+            text-align: center;
+            padding: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+        }
+        
+        .auth-tab.active {
+            border-bottom: 2px solid #FFA500;
+            color: #000;
+        }
+        
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .input-group label {
+            font-size: 14px;
+            color: #333;
+        }
+        
+        input, select, textarea {
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #333;
+            outline: none;
+        }
+        
+        .btn {
+            background-color: #FFA500;
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            text-align: center;
+        }
+        
+        .btn:hover {
+            background-color: #FF8C00;
+        }
+        
+        .yellow-shape {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 30%;
+            background-color: #FFA500;
+            z-index: -1;
+            border-top-right-radius: 50px;
+        }
+        
+        .header {
+            background-color: #5900ff;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        .dashboard-stats {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px;
+            gap: 10px;
+        }
+        
+        .stat-box {
+            flex: 1;
+            background-color: #f8f8f8;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .stat-box p:first-child {
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 5px;
+        }
+        
+        .stat-box p:last-child {
+            font-size: 18px;
+            font-weight: bold;
+            color: #5900ff;
+        }
+        
+        .coin {
+            width: 120px;
+            height: 120px;
+            background-color: #FFD700;
+            border-radius: 50%;
+            margin: 30px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .bet-options {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .bet-option {
+            padding: 10px 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .bet-option:hover, .bet-option.active {
+            border-color: #5900ff;
+            color: #5900ff;
+        }
+        
+        .bet-button {
+            width: 50%;
+            margin: 0 auto;
+            display: block;
+            background-color: #5900ff;
+        }
+        
+        .footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            max-width: 400px;
+            background-color: white;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            border-top: 1px solid #eee;
+        }
+        
+        .footer-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #5900ff;
+            text-decoration: none;
+            font-size: 12px;
+        }
+        
+        .footer-icon {
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+        
+        .radio-group {
+            margin: 15px 0;
+        }
+        
+        .contact-form {
+            padding: 20px;
+        }
+        
+        .section-title {
+            margin: 20px 0 10px 20px;
+            font-weight: bold;
+        }
+        
+        .account-info {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 0 20px;
+        }
+        
+        /* Hide all pages except the current one */
+        .page {
+            display: none;
+        }
+        
+        .page.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Login/Signup Page -->
+        <div id="auth-page" class="page active">
+            <div class="auth-container">
+                <div class="auth-tabs">
+                    <div class="auth-tab active" onclick="showTab('login')">Login</div>
+                    <div class="auth-tab" onclick="showTab('signup')">Create Account</div>
+                </div>
+                
+                <div id="login-form" class="auth-form">
+                    <div class="input-group">
+                        <input type="text" placeholder="Phone Number" id="login-phone">
+                    </div>
+                    <div class="input-group">
+                        <input type="password" placeholder="Password" id="login-password">
+                    </div>
+                    <button class="btn" onclick="login()">Login</button>
+                </div>
+                
+                <div id="signup-form" class="auth-form" style="display: none;">
+                    <div class="input-group">
+                        <input type="text" placeholder="Name" id="signup-name">
+                    </div>
+                    <div class="input-group">
+                        <input type="text" placeholder="Phone Number" id="signup-phone">
+                    </div>
+                    <div class="input-group">
+                        <input type="password" placeholder="Password" id="signup-password">
+                    </div>
+                    <div class="input-group">
+                        <input type="password" placeholder="Confirm Password" id="signup-confirm-password">
+                    </div>
+                    <button class="btn" onclick="signup()">Create Account</button>
+                </div>
+                
+                <div class="yellow-shape"></div>
+            </div>
+        </div>
+        
+        <!-- Dashboard Page -->
+        <div id="dashboard-page" class="page">
+            <div class="header">Dashboard</div>
+            <div class="dashboard-stats">
+                <div class="stat-box">
+                    <p>Balance</p>
+                    <p>₹0</p>
+                </div>
+                <div class="stat-box">
+                    <p>Total Bets</p>
+                    <p>0</p>
+                </div>
+                <div class="stat-box">
+                    <p>Won</p>
+                    <p>0</p>
+                </div>
+            </div>
+            
+            <div class="coin" id="coin">
+                HEAD
+            </div>
+            
+            <div class="bet-options">
+                <div class="bet-option" onclick="selectBet('HEAD')">HEAD</div>
+                <div class="bet-option" onclick="selectBet('TAIL')">TAIL</div>
+            </div>
+            
+            <button class="btn bet-button" onclick="placeBet()">Bet ₹20</button>
+            
+            <div class="footer">
+                <a href="#" class="footer-item" onclick="showPage('dashboard-page')">
+                    <span class="footer-icon">🏠</span>
+                    <span>Home</span>
+                </a>
+                <a href="#" class="footer-item" onclick="showPage('payment-page')">
+                    <span class="footer-icon">💰</span>
+                    <span>Payments</span>
+                </a>
+                <a href="#" class="footer-item" onclick="showPage('contact-page')">
+                    <span class="footer-icon">📞</span>
+                    <span>Contact</span>
+                </a>
+            </div>
+        </div>
+        
+        <!-- Payment Page -->
+        <div id="payment-page" class="page">
+            <div class="header">Deposit & Withdraw</div>
+            
+            <h3 class="section-title">Deposit</h3>
+            <div class="account-info">
+                <p>Account Name: Saifullah</p>
+                <p>Number: 03367169498</p>
+            </div>
+            
+            <div style="padding: 20px;">
+                <div class="input-group">
+                    <p>Select Payment Method:</p>
+                    <div class="radio-group">
+                        <input type="radio" id="easypaisa" name="payment-method" value="easypaisa" checked>
+                        <label for="easypaisa">EasyPaisa</label>
+                    </div>
+                    <div class="radio-group">
+                        <input type="radio" id="jazzcash" name="payment-method" value="jazzcash">
+                        <label for="jazzcash">JazzCash</label>
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label>Amount (₹):</label>
+                    <input type="number" placeholder="Enter amount">
+                </div>
+                
+                <div class="input-group">
+                    <label>Transaction ID:</label>
+                    <input type="text" placeholder="Enter transaction ID">
+                </div>
+                
+                <div class="input-group">
+                    <label>Payment Screenshot:</label>
+                    <input type="file" id="payment-screenshot">
+                </div>
+                
+                <p style="margin: 15px 0; font-size: 14px;">Please send screenshot to WhatsApp: 03367169498</p>
+                
+                <button class="btn" style="margin-top: 15px;">Submit Deposit</button>
+                
+                <h3 class="section-title" style="margin-top: 30px;">Withdraw</h3>
+                <div class="input-group">
+                    <label>Withdraw Method:</label>
+                    <select>
+                        <option value="easypaisa">EasyPaisa</option>
+                        <option value="jazzcash">JazzCash</option>
+                    </select>
+                </div>
+                
+                <div class="input-group">
+                    <label>Amount (₹):</label>
+                    <input type="number" placeholder="Minimum ₹300">
+                </div>
+                
+                <div class="input-group">
+                    <label>Your Number:</label>
+                    <input type="text" placeholder="Enter your number">
+                </div>
+                
+                <p style="margin: 15px 0; font-size: 14px; color: #555;">Note: 10% tax will be deducted from withdrawal amount</p>
+                
+                <button class="btn" style="margin-top: 15px;">Request Withdrawal</button>
+            </div>
+            
+            <div class="footer">
+                <a href="#" class="footer-item" onclick="showPage('dashboard-page')">
+                    <span class="footer-icon">🏠</span>
+                    <span>Home</span>
+                </a>
+                <a href="#" class="footer-item" onclick="showPage('payment-page')">
+                    <span class="footer-icon">💰</span>
+                    <span>Payments</span>
+                </a>
+                <a href="#" class="footer-item" onclick="showPage('contact-page')">
+                    <span class="footer-icon">📞</span>
+                    <span>Contact</span>
+                </a>
+            </div>
+        </div>
+        
+        <!-- Contact Page -->
+        <div id="contact-page" class="page">
+            <div class="header">Contact Us</div>
+            
+            <div class="contact-form">
+                <h3>Need Help?</h3>
+                <p style="margin: 15px 0;">For any queries or assistance, feel free to contact us:</p>
+                
+                <p><strong>WhatsApp:</strong> 03367169498</p>
+                <p><strong>Email:</strong> <a href="mailto:saifullahkhan91997@gmail.com">saifullahkhan91997@gmail.com</a></p>
+                
+                <div class="input-group" style="margin-top: 20px;">
+                    <label>Your Name:</label>
+                    <input type="text" placeholder="Enter your name">
+                </div>
+                
+                <div class="input-group">
+                    <label>Your Email:</label>
+                    <input type="email" placeholder="Enter your email">
+                </div>
+                
+                <div class="input-group">
+                    <label>Message:</label>
+                    <textarea rows="4" placeholder="Type your message here..."></textarea>
+                </div>
+                
+                <button class="btn" style="margin-top: 15px; background-color: #5900ff;">Send Message</button>
+            </div>
+            
+            <div class="footer">
+                <a href="#" class="footer-item" onclick="showPage('dashboard-page')">
+                    <span class="footer-icon">🏠</span>
+                    <span>Home</span>
+                </a>
+                <a href="#" class="footer-item" onclick="showPage('payment-page')">
+                    <span class="footer-icon">💰</span>
+                    <span>Payments</span>
+                </a>
+                <a href="#" class="footer-item" onclick="showPage('contact-page')">
+                    <span class="footer-icon">📞</span>
+                    <span>Contact</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Variables
+        let selectedBet = null;
+        let balance = 0;
+        let totalBets = 0;
+        let won = 0;
+        
+        // Show login/signup tab
+        function showTab(tab) {
+            const loginTab = document.querySelector('.auth-tab:nth-child(1)');
+            const signupTab = document.querySelector('.auth-tab:nth-child(2)');
+            const loginForm = document.getElementById('login-form');
+            const signupForm = document.getElementById('signup-form');
+            
+            if (tab === 'login') {
+                loginTab.classList.add('active');
+                signupTab.classList.remove('active');
+                loginForm.style.display = 'flex';
+                signupForm.style.display = 'none';
+            } else {
+                loginTab.classList.remove('active');
+                signupTab.classList.add('active');
+                loginForm.style.display = 'none';
+                signupForm.style.display = 'flex';
+            }
+        }
+        
+        // Show specific page
+        function showPage(pageId) {
+            const pages = document.querySelectorAll('.page');
+            pages.forEach(page => {
+                page.classList.remove('active');
+            });
+            
+            document.getElementById(pageId).classList.add('active');
+        }
+        
+        // Login function
+        function login() {
+            const phone = document.getElementById('login-phone').value;
+            const password = document.getElementById('login-password').value;
+            
+            if (!phone || !password) {
+                alert('Please enter both phone number and password');
+                return;
+            }
+            
+            // Normally would verify with backend, but for demo we'll just proceed
+            showPage('dashboard-page');
+        }
+        
+        // Signup function
+        function signup() {
+            const name = document.getElementById('signup-name').value;
+            const phone = document.getElementById('signup-phone').value;
+            const password = document.getElementById('signup-password').value;
+            const confirmPassword = document.getElementById('signup-confirm-password').value;
+            
+            if (!name || !phone || !password || !confirmPassword) {
+                alert('Please fill all fields');
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                alert('Passwords do not match');
+                return;
+            }
+            
+            // Normally would send to backend, but for demo we'll just proceed
+            showPage('dashboard-page');
+        }
+        
+        // Select bet (HEAD or TAIL)
+        function selectBet(bet) {
+            selectedBet = bet;
+            const options = document.querySelectorAll('.bet-option');
+            options.forEach(option => {
+                option.classList.remove('active');
+                if (option.textContent === bet) {
+                    option.classList.add('active');
+                }
+            });
+        }
+        
+        // Place bet function
+        function placeBet() {
+            if (!selectedBet) {
+                alert('Please select HEAD or TAIL first');
+                return;
+            }
+            
+            if (balance < 20) {
+                alert('Insufficient balance. Please deposit money.');
+                showPage('payment-page');
+                return;
+            }
+            
+            // Generate random result (HEAD, TAIL or DRAW)
+            const results = ['HEAD', 'TAIL', 'DRAW'];
+            const result = results[Math.floor(Math.random() * results.length)];
+            
+            // Update coin display
+            const coin = document.getElementById('coin');
+            coin.textContent = result;
+            
+            // Update stats
+            balance -= 20; // Deduct bet amount
+            totalBets++;
+            
+            if (result === selectedBet) {
+                // Win
+                balance += 40; // Double the bet
+                won++;
+                setTimeout(() => {
+                    alert('You won! +₹40 added to your balance.');
+                }, 500);
+            } else if (result === 'DRAW') {
+                // Draw - player loses
+                setTimeout(() => {
+                    alert('Draw! You lost your bet.');
+                }, 500);
+            } else {
+                // Loss
+                setTimeout(() => {
+                    alert('You lost! Better luck next time.');
+                }, 500);
+            }
+            
+            // Update stats display
+            updateStats();
+        }
+        
+        // Update statistics
+        function updateStats() {
+            const balanceElem = document.querySelector('.stat-box:nth-child(1) p:last-child');
+            const betsElem = document.querySelector('.stat-box:nth-child(2) p:last-child');
+            const wonElem = document.querySelector('.stat-box:nth-child(3) p:last-child');
+            
+            balanceElem.textContent = '₹' + balance;
+            betsElem.textContent = totalBets;
+            wonElem.textContent = won;
+        }
+        
+        // Initialize with HEAD selected
+        window.onload = function() {
+            selectBet('HEAD');
+        };
+    </script>
+</body>
+</html>
